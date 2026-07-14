@@ -1,0 +1,6 @@
+# Agent Gateway demo dependencies.
+requests>=2.31.0
+
+# For live (non-demo) mode you'll also want the Google auth libraries:
+# google-auth>=2.30.0
+# google-cloud-aiplatform>=1.60.0
