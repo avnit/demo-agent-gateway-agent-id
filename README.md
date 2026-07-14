@@ -2,7 +2,11 @@
 
 **Agent Gateway + Agent Identity on Google Cloud — federated with Okta and Microsoft Entra ID (Azure AD), calling Gemini Enterprise.**
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/avnit/demo-agent-gateway-agent-id/blob/main/notebooks/demo_agent_gateway.ipynb)
+
 This demo shows how an AI agent running on Google Cloud obtains a **verifiable, short-lived identity** that is federated from your existing enterprise IdP (Okta or Entra ID), and uses that identity to call **Gemini Enterprise** through an **Agent Gateway** that enforces per-agent authorization.
+
+> 🚀 **Want to see it run first?** Click the **Open in Colab** badge above for a self-contained, zero-setup walkthrough of the entire flow — no GCP project required. See [`notebooks/`](notebooks/).
 
 It answers three questions security architects ask about agentic AI:
 
@@ -86,6 +90,8 @@ demo-agent-gateway-agent-id/
 │   ├── setup_okta_provider.sh    ← gcloud commands, idempotent
 │   ├── setup_azuread_provider.sh
 │   └── demo_run.sh               ← end-to-end local walkthrough
+├── notebooks/
+│   └── demo_agent_gateway.ipynb  ← self-contained Colab walkthrough (Run all)
 └── .github/workflows/ci.yml      ← lint + terraform validate
 ```
 
