@@ -42,8 +42,14 @@ class AgentCredential:
     expires_in: int
 
 
-def exchange_idp_token_for_federated_token(subject_token: str, audience: str, idp: str) -> str:
-    """Hop 1 — exchange the IdP OIDC token for a Google federated access token (STS)."""
+def exchange_idp_token_for_federated_token(
+    subject_token: str, audience: str, idp: str, user_project: str | None = None
+) -> str:
+    """Hop 1 — exchange the IdP OIDC token for a Google federated access token (STS).
+
+    ``user_project`` is required for workforce federation: the resulting token is
+    billed/quota'd against that project when it calls Google APIs.
+    """
     if _demo_mode():
         return f"DEMO.federated.access_token.for.{idp}"
 
@@ -55,6 +61,8 @@ def exchange_idp_token_for_federated_token(subject_token: str, audience: str, id
         "subject_token": subject_token,
         "subject_token_type": JWT_TOKEN_TYPE,
     }
+    if user_project:
+        payload["options"] = json.dumps({"userProject": user_project})
     resp = requests.post(STS_ENDPOINT, data=payload, timeout=30)
     resp.raise_for_status()
     return resp.json()["access_token"]
@@ -93,9 +101,10 @@ def mint_agent_credential(
     idp: str,
     agent_sa_email: str,
     lifetime_seconds: int,
+    user_project: str | None = None,
 ) -> AgentCredential:
     """Run both federation hops and return the agent credential + OBO subject."""
-    federated = exchange_idp_token_for_federated_token(subject_token, audience, idp)
+    federated = exchange_idp_token_for_federated_token(subject_token, audience, idp, user_project)
     agent_token, expires_in = impersonate_agent_sa(federated, agent_sa_email, lifetime_seconds)
     return AgentCredential(
         access_token=agent_token,

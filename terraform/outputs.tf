@@ -23,7 +23,12 @@ output "workload_identity_pool_name" {
   value       = google_iam_workload_identity_pool.agents.name
 }
 
-output "audience_workforce" {
-  description = "STS audience string for the workforce providers (use in the gateway)."
-  value       = "//iam.googleapis.com/${google_iam_workforce_pool.main.name}"
+output "audience_workforce_okta" {
+  description = "STS audience for the Okta provider (use in the gateway; must include the provider segment)."
+  value       = "//iam.googleapis.com/${google_iam_workforce_pool_provider.okta.name}"
+}
+
+output "audience_workforce_azuread" {
+  description = "STS audience for the Entra ID provider (use in the gateway; must include the provider segment)."
+  value       = "//iam.googleapis.com/${google_iam_workforce_pool_provider.azuread.name}"
 }

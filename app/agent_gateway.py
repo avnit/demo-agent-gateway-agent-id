@@ -68,10 +68,11 @@ def run(idp: str, prompt: str) -> str:
     cred = mint_agent_credential(
         subject_token=identity.id_token,
         subject=identity.subject,
-        audience=SETTINGS.sts_audience,
+        audience=SETTINGS.sts_audience(provider.provider_id),
         idp=provider.idp_name,
         agent_sa_email=SETTINGS.agent_sa_email,
         lifetime_seconds=SETTINGS.agent_token_lifetime_seconds,
+        user_project=SETTINGS.project_id,
     )
     _audit(
         f"minted agent credential sa={cred.agent_sa_email} "

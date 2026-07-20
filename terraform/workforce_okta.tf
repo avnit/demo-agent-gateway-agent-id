@@ -12,17 +12,18 @@ resource "google_iam_workforce_pool" "main" {
 
 # Okta OIDC provider.
 resource "google_iam_workforce_pool_provider" "okta" {
-  provider            = google-beta
-  workforce_pool_id   = google_iam_workforce_pool.main.workforce_pool_id
-  location            = "global"
-  provider_id         = "okta-oidc"
-  display_name        = "Okta"
-  description         = "Okta OIDC federation for workforce users."
+  provider          = google-beta
+  workforce_pool_id = google_iam_workforce_pool.main.workforce_pool_id
+  location          = "global"
+  provider_id       = "okta-oidc"
+  display_name      = "Okta"
+  description       = "Okta OIDC federation for workforce users."
+
   attribute_mapping = {
-    "google.subject"       = "assertion.sub"
-    "google.groups"        = "assertion.groups"
-    "attribute.email"      = "assertion.email"
-    "attribute.idp"        = "'okta'"
+    "google.subject"  = "assertion.sub"
+    "google.groups"   = "assertion.groups"
+    "attribute.email" = "assertion.email"
+    "attribute.idp"   = "'okta'"
   }
   # Only accept tokens for users in the security-cleared Okta group.
   attribute_condition = "'gemini-agent-users' in assertion.groups"
