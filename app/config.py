@@ -30,11 +30,13 @@ class Settings:
     # Short-lived agent token lifetime (seconds). Keep this small.
     agent_token_lifetime_seconds: int = int(os.environ.get("AGENT_TOKEN_LIFETIME", "900"))
 
-    @property
-    def sts_audience(self) -> str:
+    def sts_audience(self, provider_id: str) -> str:
+        """STS audience for a workforce provider. Must include the provider segment —
+        Google STS rejects pool-only audiences, and the audience must match the IdP
+        the subject token came from."""
         return (
             "//iam.googleapis.com/locations/global/workforcePools/"
-            f"{self.workforce_pool}"
+            f"{self.workforce_pool}/providers/{provider_id}"
         )
 
 

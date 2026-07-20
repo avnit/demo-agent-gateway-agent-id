@@ -7,12 +7,28 @@ resource "google_service_account" "agent" {
   description  = "Dedicated identity for the ${var.agent_name} AI agent. Least-privilege."
 }
 
+# The Agent Gateway runs as its own identity, separate from every agent it brokers.
+resource "google_service_account" "gateway" {
+  account_id   = "${var.agent_name}-gateway"
+  display_name = "Agent Gateway: ${var.agent_name}"
+  description  = "The gateway that brokers federated humans onto the ${var.agent_name} agent."
+}
+
 # The Agent Gateway (running on GCP) is allowed to impersonate the agent SA to
-# mint short-lived tokens. Replace the member with the gateway's own identity.
+# mint short-lived tokens.
 resource "google_service_account_iam_member" "gateway_can_impersonate" {
   service_account_id = google_service_account.agent.name
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "serviceAccount:${var.agent_name}-gateway@${var.project_id}.iam.gserviceaccount.com"
+  member             = "serviceAccount:${google_service_account.gateway.email}"
+}
+
+# Federated workforce humans (Okta / Entra ID) exchange their IdP token at STS and
+# then impersonate the agent SA directly (the flow in app/auth/federation.py).
+# Scoped to the whole pool here; tighten to a group principalSet in production.
+resource "google_service_account_iam_member" "workforce_can_impersonate" {
+  service_account_id = google_service_account.agent.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workforce_pool.main.name}/*"
 }
 
 # ---------------------------------------------------------------------------
@@ -30,9 +46,10 @@ resource "google_iam_workload_identity_pool_provider" "oidc" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.agents.workload_identity_pool_id
   workload_identity_pool_provider_id = "agent-oidc"
   display_name                       = "Agent OIDC"
+
   attribute_mapping = {
-    "google.subject"      = "assertion.sub"
-    "attribute.agent"     = "assertion.agent_name"
+    "google.subject"  = "assertion.sub"
+    "attribute.agent" = "assertion.agent_name"
   }
   attribute_condition = "attribute.agent == \"${var.agent_name}\""
   oidc {
