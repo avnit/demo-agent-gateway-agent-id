@@ -121,3 +121,24 @@ See [`docs/architecture.md`](docs/architecture.md) for the full trust-chain walk
 ## License
 
 Apache-2.0 — see [`LICENSE`](LICENSE).
+
+<!-- ARCH-DIAGRAM:START -->
+
+## Architecture
+
+> Auto-generated architecture diagram. See [`docs/context-map.md`](docs/context-map.md) for the full context map (core application, containers/cloud, and database connections).
+
+```mermaid
+flowchart TD
+  User([User / Client])
+  App["demo-agent-gateway-agent-id"]
+  AI["Vertex AI / Gemini<br/>(LLM / Agent Engine)"]
+  SVC0["Azure"]
+  TF["Terraform<br/>(infra)"]
+  User --> App
+  App --> AI
+  App --> SVC0
+  App -.deploy.-> TF
+```
+
+<!-- ARCH-DIAGRAM:END -->
